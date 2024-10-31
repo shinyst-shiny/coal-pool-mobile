@@ -1,11 +1,11 @@
 <resources>
-    <string name="app_name">Ore HQ Mobile</string>
+    <string name="app_name">Coal Pool Mobile</string>
 
     <string name="foreground_service_sample_notification_channel_general_name">General notification</string>
-    <string name="foreground_service_notification_title">Ore HQ Mobile</string>
-    <string name="foreground_service_sample_notification_description">Ore HQ Mobile is mining in the background.</string>
+    <string name="foreground_service_notification_title">Coal Pool Mobile</string>
+    <string name="foreground_service_sample_notification_description">Coal Pool Mobile is mining in the background.</string>
 
-    <string name="foreground_service_sample_description">Ore HQ Mobile Foreground Mining Service</string>
+    <string name="foreground_service_sample_description">Coal Pool Mobile Foreground Mining Service</string>
 
     <string name="foreground_service_sample_status_title">Foreground service status:</string>
     <string name="foreground_service_sample_status_running">RUNNING</string>

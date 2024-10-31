@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Ore HQ Mobile"
+rootProject.name = "Coal Pool Mobile"
 include(":app")
