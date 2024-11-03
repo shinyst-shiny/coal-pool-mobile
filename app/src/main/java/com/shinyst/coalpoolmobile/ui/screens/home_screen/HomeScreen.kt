@@ -309,10 +309,10 @@ fun MiningScreen(
                 modifier = Modifier.padding(top = 16.dp)
             )
 
-            val minimumBalanceReached = claimableBalance >= 0.005
+            val minimumBalanceReached = claimableBalance >= 1
 
             if (!minimumBalanceReached) {
-                Text("Minimum claim amount is 0.005", style = MaterialTheme.typography.labelSmall)
+                Text("Minimum claim amount is 1", style = MaterialTheme.typography.labelSmall)
             }
             Button(
                 onClick = onClickClaim,
