@@ -54,8 +54,8 @@ interface IPoolRepository {
     ): Result<String>
 }
 
-const val HOST_URL = "ec1ipse.me"
-const val STATS_HOST_URL = "domainexpansion.tech"
+const val HOST_URL = "pool.coal-pool.xyz"
+const val STATS_HOST_URL = "pool.coal-pool.xyz"
 
 class PoolRepository : IPoolRepository {
     private val client = HttpClient {
