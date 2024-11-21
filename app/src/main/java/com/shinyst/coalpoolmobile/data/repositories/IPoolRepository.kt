@@ -1,8 +1,11 @@
 package com.shinyst.coalpoolmobile.data.repositories
 
+import android.icu.math.BigDecimal
 import android.util.Log
 import com.shinyst.coalpoolmobile.data.models.ServerMessage
 import com.funkatronics.encoders.Base64
+import com.google.gson.Gson
+import com.shinyst.coalpoolmobile.data.repositories.PoolRepository.PoolBalance
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.plugins.websocket.WebSockets
@@ -23,6 +26,7 @@ import io.ktor.websocket.readBytes
 import io.ktor.websocket.readText
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.serialization.json.Json
 
 interface IPoolRepository {
     suspend fun connectWebSocket(
@@ -35,10 +39,10 @@ interface IPoolRepository {
     suspend fun disconnectWebsocket()
     suspend fun fetchTimestamp(): Result<ULong>
     suspend fun sendWebSocketMessage(message: ByteArray)
-    suspend fun fetchMinerBalance(publicKey: String): Result<Double>
-    suspend fun fetchMinerRewards(publicKey: String): Result<Double>
+    suspend fun fetchMinerBalance(publicKey: String): Result<PoolRepository.MinerBalance>
+    suspend fun fetchMinerRewards(publicKey: String): Result<PoolRepository.MinerRewards>
     suspend fun fetchActiveMinersCount(): Result<Int>
-    suspend fun fetchPoolBalance(): Result<Double>
+    suspend fun fetchPoolBalance(): Result<PoolBalance>
     suspend fun fetchPoolMultiplier(): Result<Double>
     suspend fun fetchPoolAuthorityPubkey(): Result<String>
     suspend fun fetchLatestBlockhash(): Result<String>
@@ -50,7 +54,8 @@ interface IPoolRepository {
         signature: String,
         minerPubkey: String,
         receiverPubkey: String,
-        amount: ULong,
+        amountCoal: ULong,
+        amountOre: ULong,
     ): Result<String>
 }
 
@@ -112,13 +117,19 @@ class PoolRepository : IPoolRepository {
         }
     }
 
-    override suspend fun fetchMinerBalance(publicKey: String): Result<Double> {
+    data class MinerBalance(
+        val ore: Double,
+        val coal: Double
+    )
+
+    override suspend fun fetchMinerBalance(publicKey: String): Result<MinerBalance> {
       return try {
           val response: HttpResponse = client.get("https://$HOST_URL/miner/balance") {
               parameter("pubkey", publicKey)
           }
           if (response.status.value in 200..299) {
-              Result.success(response.bodyAsText().toDouble())
+              val gson = Gson()
+              Result.success(gson.fromJson(response.bodyAsText(), MinerBalance::class.java))
           } else {
               Result.failure(IOException("HTTP error ${response.status.value}"))
           }
@@ -127,13 +138,19 @@ class PoolRepository : IPoolRepository {
       }
     }
 
-    override suspend fun fetchMinerRewards(publicKey: String): Result<Double> {
+    data class MinerRewards(
+        val ore: Double,
+        val coal: Double
+    )
+
+    override suspend fun fetchMinerRewards(publicKey: String): Result<MinerRewards> {
         return try {
             val response: HttpResponse = client.get("https://$HOST_URL/miner/rewards") {
                 parameter("pubkey", publicKey)
             }
             if (response.status.value in 200..299) {
-                Result.success(response.bodyAsText().toDouble())
+                val gson = Gson()
+                Result.success( gson.fromJson(response.bodyAsText(), MinerRewards::class.java))
             } else {
                 Result.failure(IOException("HTTP error ${response.status.value}"))
             }
@@ -160,11 +177,20 @@ class PoolRepository : IPoolRepository {
             ?: throw IllegalStateException("WebSocket session not initialized")
     }
 
-    override suspend fun fetchPoolBalance(): Result<Double> {
+    data class PoolBalance(
+        var ore: Double,
+        var coal: Double
+    )
+
+    override suspend fun fetchPoolBalance(): Result<PoolBalance> {
         return try {
             val response: HttpResponse = client.get("https://$STATS_HOST_URL/pool/staked")
             if (response.status.value in 200..299) {
-                Result.success(response.bodyAsText().toDouble() / 100000000000)
+                val gson = Gson()
+                val poolBalance = gson.fromJson(response.bodyAsText(), PoolBalance::class.java)
+                poolBalance.ore /= 100000000000
+                poolBalance.coal /= 100000000000
+                Result.success(poolBalance)
             } else {
                 Result.failure(IOException("HTTP error ${response.status.value}"))
             }
@@ -259,13 +285,15 @@ class PoolRepository : IPoolRepository {
         signature: String,
         minerPubkey: String,
         receiverPubkey: String,
-        amount: ULong,
+        amountCoal: ULong,
+        amountOre: ULong,
     ): Result<String> {
         try {
-            Log.d("PoolRepository", "Claiming $amount COAL to $receiverPubkey")
+            Log.d("PoolRepository", "Claiming $amountCoal COAL to $receiverPubkey")
+            Log.d("PoolRepository", "Claiming $amountOre ORE to $receiverPubkey")
             val auth = Base64.getEncoder().encodeToString("${minerPubkey}:${signature}".toByteArray())
             val response: HttpResponse =
-                client.post("https://$HOST_URL/v2/claim?timestamp=$timestamp&receiver_pubkey=$receiverPubkey&amount=$amount") {
+                client.post("https://$HOST_URL/v2/claim?timestamp=$timestamp&receiver_pubkey=$receiverPubkey&amount_coal=$amountCoal&amount_ore=$amountOre") {
                     header(HttpHeaders.Host, HOST_URL)
                     header(HttpHeaders.Authorization, "Basic $auth")
                 }

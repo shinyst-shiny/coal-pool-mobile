@@ -13,14 +13,20 @@ class SubmissionResult {
 
     @ColumnInfo(name = "poolDifficulty")
     var poolDifficulty: Int = 0
-    @ColumnInfo(name = "poolEarned")
-    var poolEarned: Long = 0
-    @ColumnInfo(name = "minerPercentage")
-    var minerPercentage: Double = 0.0
+    @ColumnInfo(name = "poolEarnedCoal")
+    var poolEarnedCoal: Long = 0
+    @ColumnInfo(name = "poolEarnedOre")
+    var poolEarnedOre: Long = 0
+    @ColumnInfo(name = "minerPercentageCoal")
+    var minerPercentageCoal: Double = 0.0
+    @ColumnInfo(name = "minerPercentageOre")
+    var minerPercentageOre: Double = 0.0
     @ColumnInfo(name = "minerDifficulty")
     var minerDifficulty: Int = 0
-    @ColumnInfo(name = "minerEarned")
-    var minerEarned: Long = 0
+    @ColumnInfo(name = "minerEarnedCoal")
+    var minerEarnedCoal: Long = 0
+    @ColumnInfo(name = "minerEarnedOre")
+    var minerEarnedOre: Long = 0
     @ColumnInfo(name = "createdAt", defaultValue = "CURRENT_TIMESTAMP")
     var createdAt: Long = 0
 
@@ -28,16 +34,22 @@ class SubmissionResult {
 
     constructor(
         poolDifficulty: Int,
-        poolEarned: Long,
-        minerPercentage: Double,
+        poolEarnedCoal: Long,
+        poolEarnedOre: Long,
+        minerPercentageCoal: Double,
+        minerPercentageOre: Double,
         minerDifficulty: Int,
-        minerEarned: Long,
+        minerEarnedCoal: Long,
+        minerEarnedOre: Long,
     ) {
         this.poolDifficulty = poolDifficulty
-        this.poolEarned = poolEarned
-        this.minerPercentage = minerPercentage
+        this.poolEarnedCoal = poolEarnedCoal
+        this.poolEarnedOre = poolEarnedOre
+        this.minerPercentageCoal = minerPercentageCoal
+        this.minerPercentageOre = minerPercentageOre
         this.minerDifficulty = minerDifficulty
-        this.minerEarned = minerEarned
+        this.minerEarnedCoal = minerEarnedCoal
+        this.minerEarnedOre = minerEarnedOre
         this.createdAt = System.currentTimeMillis()
     }
 }

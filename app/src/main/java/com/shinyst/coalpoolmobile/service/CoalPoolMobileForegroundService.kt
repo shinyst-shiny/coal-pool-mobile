@@ -62,14 +62,11 @@ class CoalPoolMobileForegroundService : Service() {
     private val _difficulty = MutableStateFlow<UInt>(0u)
     var difficulty: StateFlow<UInt> = _difficulty
 
-    private val _poolBalance = MutableStateFlow<Double>(0.0)
-    var poolBalance: StateFlow<Double> = _poolBalance
+    private val _poolBalanceCoal = MutableStateFlow<Double>(0.0)
+    var poolBalanceCoal: StateFlow<Double> = _poolBalanceCoal
 
-    private val _topStake = MutableStateFlow<Double>(0.0)
-    var topStake: StateFlow<Double> = _topStake
-
-    private val _poolMultiplier = MutableStateFlow<Double>(0.0)
-    var poolMultiplier: StateFlow<Double> = _poolMultiplier
+    private val _poolBalanceOre = MutableStateFlow<Double>(0.0)
+    var poolBalanceOre: StateFlow<Double> = _poolBalanceOre
 
     private val _activeMiners = MutableStateFlow<UInt>(0u)
     var activeMiners: StateFlow<UInt> = _activeMiners
@@ -375,31 +372,37 @@ class CoalPoolMobileForegroundService : Service() {
         Log.d(TAG, "Received pool submission result:")
         Log.d(TAG, "Difficulty: ${poolSubmissionResult.difficulty}")
         Log.d(TAG, "Difficulty Int: ${poolSubmissionResult.difficulty.toInt()}")
-        Log.d(TAG, "Total Balance: ${"%.11f".format(poolSubmissionResult.totalBalance)}")
-        Log.d(TAG, "Total Rewards: ${"%.11f".format(poolSubmissionResult.totalRewards)}")
-        Log.d(TAG, "Top Stake: ${"%.11f".format(poolSubmissionResult.topStake)}")
-        Log.d(TAG, "Multiplier: ${"%.11f".format(poolSubmissionResult.multiplier)}")
+        Log.d(TAG, "Total Balance Coal: ${"%.11f".format(poolSubmissionResult.totalBalanceCoal)}")
+        Log.d(TAG, "Total Balance Ore: ${"%.11f".format(poolSubmissionResult.totalBalanceOre)}")
+        Log.d(TAG, "Total Rewards Coal: ${"%.11f".format(poolSubmissionResult.totalRewardsCoal)}")
+        Log.d(TAG, "Total Rewards Ore: ${"%.11f".format(poolSubmissionResult.totalRewardsOre)}")
         Log.d(TAG, "Active Miners: ${poolSubmissionResult.activeMiners}")
         Log.d(TAG, "Challenge: ${poolSubmissionResult.challenge.joinToString(", ")}")
         Log.d(TAG, "Best Nonce: ${poolSubmissionResult.bestNonce}")
         Log.d(TAG, "Miner Supplied Difficulty: ${poolSubmissionResult.minerSuppliedDifficulty}")
-        Log.d(TAG, "Miner Earned Rewards: ${"%.11f".format(poolSubmissionResult.minerEarnedRewards)}")
-        Log.d(TAG, "Miner Percentage: ${"%.11f".format(poolSubmissionResult.minerPercentage)}")
+        Log.d(TAG, "Miner Earned Rewards Coal: ${"%.11f".format(poolSubmissionResult.minerEarnedRewardsCoal)}")
+        Log.d(TAG, "Miner Earned Rewards Ore: ${"%.11f".format(poolSubmissionResult.minerEarnedRewardsOre)}")
+        Log.d(TAG, "Miner Percentage Coal: ${"%.11f".format(poolSubmissionResult.minerPercentageCoal)}")
+        Log.d(TAG, "Miner Percentage Ore: ${"%.11f".format(poolSubmissionResult.minerPercentageOre)}")
 
-        _poolBalance.value = poolSubmissionResult.totalBalance
-        _poolMultiplier.value = poolSubmissionResult.multiplier
-        _topStake.value = poolSubmissionResult.topStake
+        _poolBalanceCoal.value = poolSubmissionResult.totalBalanceCoal
+        _poolBalanceOre.value = poolSubmissionResult.totalBalanceOre
         _activeMiners.value = poolSubmissionResult.activeMiners
 
-        val totalRewards = (poolSubmissionResult.totalRewards * 10.0.pow(11.0)).toLong()
-        val earnings = (poolSubmissionResult.minerEarnedRewards * 10.0.pow(11.0)).toLong()
+        val totalRewardsCoal = (poolSubmissionResult.totalRewardsCoal * 10.0.pow(11.0)).toLong()
+        val totalRewardsOre = (poolSubmissionResult.totalRewardsOre * 10.0.pow(11.0)).toLong()
+        val earningsCoal = (poolSubmissionResult.minerEarnedRewardsCoal * 10.0.pow(11.0)).toLong()
+        val earningsOre = (poolSubmissionResult.minerEarnedRewardsOre * 10.0.pow(11.0)).toLong()
 
         submissionResultRepository.insertSubmissionResult(SubmissionResult(
             poolSubmissionResult.difficulty.toInt(),
-            totalRewards,
-            poolSubmissionResult.minerPercentage,
+            totalRewardsCoal,
+            totalRewardsOre,
+            poolSubmissionResult.minerPercentageCoal,
+            poolSubmissionResult.minerPercentageOre,
             poolSubmissionResult.minerSuppliedDifficulty.toInt(),
-            earnings,
+            earningsCoal,
+            earningsOre,
         ))
 
         //Toast.makeText(this@CoalPoolMobileForegroundService, "${"%.11f".format(poolSubmissionResult.minerEarnedRewards)}", Toast.LENGTH_LONG)

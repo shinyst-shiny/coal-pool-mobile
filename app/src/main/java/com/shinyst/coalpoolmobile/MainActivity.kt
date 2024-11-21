@@ -182,23 +182,16 @@ class MainActivity : ComponentActivity() {
             }
         }
         lifecycleScope.launch {
-            CoalPoolMobileService?.poolBalance?.collectLatest { it ->
+            CoalPoolMobileService?.poolBalanceCoal?.collectLatest { it ->
                 if (it > 0) {
-                    homeScreenViewModel.setPoolbalance(it)
+                    homeScreenViewModel.setPoolBalanceCoal(it)
                 }
             }
         }
         lifecycleScope.launch {
-            CoalPoolMobileService?.topStake?.collectLatest { it ->
+            CoalPoolMobileService?.poolBalanceOre?.collectLatest { it ->
                 if (it > 0) {
-                    homeScreenViewModel.setTopStake(it)
-                }
-            }
-        }
-        lifecycleScope.launch {
-            CoalPoolMobileService?.poolMultiplier?.collectLatest { it ->
-                if (it > 0) {
-                    homeScreenViewModel.setPoolMultiplier(it)
+                    homeScreenViewModel.setPoolBalanceOre(it)
                 }
             }
         }

@@ -46,12 +46,13 @@ data class HomeUiState(
     var difficulty: UInt,
     var selectedThreads: Int,
     var solBalance: Double,
-    var claimableBalance: Double,
-    var walletTokenBalance: Double,
+    var claimableBalanceCoal: Double,
+    var claimableBalanceOre: Double,
+    var walletTokenBalanceCoal: Double,
+    var walletTokenBalanceOre: Double,
     var activeMiners: Int,
-    var poolBalance: Double,
-    var poolMultiplier: Double,
-    var topStake: Double,
+    var poolBalanceCoal: Double,
+    var poolBalanceOre: Double,
     var isSignedUp: Boolean,
     var isProcessingSignup: Boolean,
     var isLoadingUi: Boolean,
@@ -78,13 +79,14 @@ class HomeScreenViewModel(
             hashRate = 0u,
             difficulty = 0u,
             selectedThreads =  1,
-            claimableBalance = 0.0,
+            claimableBalanceCoal = 0.0,
+            claimableBalanceOre = 0.0,
             solBalance = 0.0,
-            walletTokenBalance = 0.0,
+            walletTokenBalanceCoal = 0.0,
+            walletTokenBalanceOre = 0.0,
             activeMiners = 0,
-            poolBalance = 0.0,
-            poolMultiplier = 0.0,
-            topStake = 0.0,
+            poolBalanceCoal = 0.0,
+            poolBalanceOre = 0.0,
             isSignedUp = false,
             isProcessingSignup = false,
             isLoadingUi = true,
@@ -141,7 +143,8 @@ class HomeScreenViewModel(
                     val balanceRewardsResult = poolRepository.fetchMinerRewards(pk)
                     balanceRewardsResult.fold(
                         onSuccess = { balance ->
-                            homeUiState = homeUiState.copy(claimableBalance = balance)
+                            homeUiState = homeUiState.copy(claimableBalanceCoal = balance.coal)
+                            homeUiState = homeUiState.copy(claimableBalanceOre = balance.ore)
                         },
                         onFailure = { error ->
                             Log.e("HomeScreenViewModel", "Error fetching wallet rewards balance", error)
@@ -236,7 +239,8 @@ class HomeScreenViewModel(
                             val balanceResult = poolRepository.fetchMinerBalance(securePubkey)
                             balanceResult.fold(
                                 onSuccess = { balance ->
-                                    homeUiState = homeUiState.copy(walletTokenBalance = balance)
+                                    homeUiState = homeUiState.copy(walletTokenBalanceCoal = balance.coal)
+                                    homeUiState = homeUiState.copy(walletTokenBalanceOre = balance.ore)
                                 },
                                 onFailure = { error ->
                                     Log.e("HomeScreenViewModel", "Error fetching wallet token balance", error)
@@ -253,7 +257,8 @@ class HomeScreenViewModel(
                                     appAccountRepository.insertAppAccount(AppAccount(pubkey, true))
                                 }
                                 homeUiState = homeUiState.copy(
-                                    claimableBalance = balance,
+                                    claimableBalanceCoal = balance.coal,
+                                    claimableBalanceOre = balance.ore,
                                     isSignedUp = true,
                                 )
                             },
@@ -278,20 +283,11 @@ class HomeScreenViewModel(
                         poolBalanceResult.fold(
                             onSuccess = { balance ->
                                 Log.d("HomeScreenViewModel", "SUCCESS fetching pool balance")
-                                homeUiState = homeUiState.copy(poolBalance = balance)
+                                homeUiState = homeUiState.copy(poolBalanceCoal = balance.coal)
+                                homeUiState = homeUiState.copy(poolBalanceOre = balance.ore)
                             },
                             onFailure = { error ->
                                 Log.e("HomeScreenViewModel", "Error fetching pool balance", error)
-                            }
-                        )
-
-                        val poolMultiplierResult = poolRepository.fetchPoolMultiplier()
-                        poolMultiplierResult.fold(
-                            onSuccess = { data ->
-                                homeUiState = homeUiState.copy(poolMultiplier = data)
-                            },
-                            onFailure = { error ->
-                                Log.e("HomeScreenViewModel", "Error fetching pool multiplier", error)
                             }
                         )
 
@@ -366,17 +362,19 @@ class HomeScreenViewModel(
             result.fold(
                 onSuccess = { timestamp ->
                     Log.d(TAG, "Fetched timestamp: $timestamp")
-                    val claimAmountGrains = (homeUiState.claimableBalance * 10.0.pow(11.0)).toULong()
+                    val claimAmountGrainsCoal = (homeUiState.claimableBalanceCoal * 10.0.pow(11.0)).toULong()
+                    val claimAmountGrainsOre = (homeUiState.claimableBalanceOre * 10.0.pow(11.0)).toULong()
                     val tsBytes = timestamp.toLittleEndianByteArray()
                     val receiverPubkeyBytes = Base58.decode(receiverPubkey)
-                    val claimAmountBytes = claimAmountGrains.toLittleEndianByteArray()
+                    val claimAmountBytesCoal = claimAmountGrainsCoal.toLittleEndianByteArray()
+                    val claimAmountBytesOre = claimAmountGrainsOre.toLittleEndianByteArray()
 
-                    var msgBytes = tsBytes + receiverPubkeyBytes + claimAmountBytes
+                    var msgBytes = tsBytes + receiverPubkeyBytes + claimAmountBytesCoal + claimAmountBytesOre
 
                     var kp = keypairRepository.loadAcKeypair()
                     val sig = Base58.encodeToString(solanaRepository.signMessage(msgBytes, listOf(kp!!)).signature)
 
-                    val claimResult = poolRepository.claim(timestamp, sig, minerPubkey!!, receiverPubkey, claimAmountGrains)
+                    val claimResult = poolRepository.claim(timestamp, sig, minerPubkey!!, receiverPubkey, claimAmountGrainsCoal, claimAmountGrainsOre)
                     claimResult.fold(
                         onSuccess = {
                             Log.d(TAG, "Successfully queued claim request.")
@@ -415,21 +413,15 @@ class HomeScreenViewModel(
         }
     }
 
-    public fun setPoolbalance(newPoolBalance: Double) {
+    public fun setPoolBalanceCoal(newPoolBalance: Double) {
         homeUiState = homeUiState.copy(
-            poolBalance = newPoolBalance
+            poolBalanceCoal = newPoolBalance
         )
     }
 
-    public fun setTopStake(newTopStake: Double) {
+    public fun setPoolBalanceOre(newPoolBalance: Double) {
         homeUiState = homeUiState.copy(
-            topStake = newTopStake
-        )
-    }
-
-    public fun setPoolMultiplier(newPoolMultiplier: Double) {
-        homeUiState = homeUiState.copy(
-            poolMultiplier = newPoolMultiplier
+            poolBalanceOre = newPoolBalance
         )
     }
 

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "742d3201e377bdb534e8ac366cab3b36",
+    "identityHash": "d4218085d8198d60d5260e2933ac1de0",
     "entities": [
       {
         "tableName": "wallets",
@@ -38,7 +38,7 @@
       },
       {
         "tableName": "submission_results",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `poolDifficulty` INTEGER NOT NULL, `poolEarned` INTEGER NOT NULL, `minerPercentage` REAL NOT NULL, `minerDifficulty` INTEGER NOT NULL, `minerEarned` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL DEFAULT CURRENT_TIMESTAMP)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `poolDifficulty` INTEGER NOT NULL, `poolEarnedCoal` INTEGER NOT NULL, `poolEarnedOre` INTEGER NOT NULL, `minerPercentageCoal` REAL NOT NULL, `minerPercentageOre` REAL NOT NULL, `minerDifficulty` INTEGER NOT NULL, `minerEarnedCoal` INTEGER NOT NULL, `minerEarnedOre` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL DEFAULT CURRENT_TIMESTAMP)",
         "fields": [
           {
             "fieldPath": "id",
@@ -53,14 +53,26 @@
             "notNull": true
           },
           {
-            "fieldPath": "poolEarned",
-            "columnName": "poolEarned",
+            "fieldPath": "poolEarnedCoal",
+            "columnName": "poolEarnedCoal",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "minerPercentage",
-            "columnName": "minerPercentage",
+            "fieldPath": "poolEarnedOre",
+            "columnName": "poolEarnedOre",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "minerPercentageCoal",
+            "columnName": "minerPercentageCoal",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "minerPercentageOre",
+            "columnName": "minerPercentageOre",
             "affinity": "REAL",
             "notNull": true
           },
@@ -71,8 +83,14 @@
             "notNull": true
           },
           {
-            "fieldPath": "minerEarned",
-            "columnName": "minerEarned",
+            "fieldPath": "minerEarnedCoal",
+            "columnName": "minerEarnedCoal",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "minerEarnedOre",
+            "columnName": "minerEarnedOre",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -129,7 +147,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '742d3201e377bdb534e8ac366cab3b36')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd4218085d8198d60d5260e2933ac1de0')"
     ]
   }
 }

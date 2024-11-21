@@ -121,13 +121,14 @@ fun HomeScreenPreview() {
                 hashRate = 0u,
                 difficulty = 0u,
                 selectedThreads =  1,
-                claimableBalance = 0.0,
+                claimableBalanceCoal = 0.0,
+                claimableBalanceOre = 0.0,
                 solBalance = 0.0,
-                walletTokenBalance = 0.0,
+                walletTokenBalanceCoal = 0.0,
+                walletTokenBalanceOre = 0.0,
                 activeMiners = 0,
-                poolBalance = 0.0,
-                topStake = 0.0,
-                poolMultiplier = 0.0,
+                poolBalanceCoal = 0.0,
+                poolBalanceOre = 0.0,
                 isSignedUp = true,
                 isProcessingSignup = false,
                 isLoadingUi = false,
@@ -166,11 +167,11 @@ fun MiningScreen(
 ) {
     val difficulty = difficulty
     val availableThreads = homeUiState.availableThreads
-    val claimableBalance = homeUiState.claimableBalance
+    val claimableBalanceCoal = homeUiState.claimableBalanceCoal
+    val claimableBalanceOre = homeUiState.claimableBalanceOre
     val activeMiners = homeUiState.activeMiners
-    val poolBalance = homeUiState.poolBalance
-    val topStake = homeUiState.topStake
-    val poolMultiplier = homeUiState.poolMultiplier
+    val poolBalanceCoal = homeUiState.poolBalanceCoal
+    val poolBalanceOre = homeUiState.poolBalanceOre
 
     val clipboardManager: ClipboardManager = LocalClipboardManager.current
     var isPublicKeyCopied by remember { mutableStateOf(false) }
@@ -200,19 +201,14 @@ fun MiningScreen(
 
             Text(text = "Active Miners: $activeMiners", modifier = Modifier.padding(bottom = 8.dp))
             Text(
-                text = "Pool Balance: ${String.format("%.11f", poolBalance)} COAL",
+                text = "Pool Balance COAL: ${String.format("%.11f", poolBalanceCoal)}",
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(top = 16.dp)
             )
             Text(
-                text = "Top Stake: ${String.format("%.11f", topStake)} COAL",
+                text = "Pool Balance ORE: ${String.format("%.11f", poolBalanceOre)}",
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(top = 16.dp)
-            )
-            Text(
-                text = "Pool Multiplier: ${String.format("%.2f", poolMultiplier)}x",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)
             )
 
             Text(text = "Hashpower: $hashpower", modifier = Modifier.padding(bottom = 8.dp))
@@ -304,19 +300,29 @@ fun MiningScreen(
             }
 
             Text(
-                text = "Claimable: ${String.format("%.11f", claimableBalance)} COAL",
+                text = "Claimable COAL: ${String.format("%.11f", claimableBalanceCoal)}",
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(top = 16.dp)
             )
 
-            val minimumBalanceReached = claimableBalance >= 1
+            Text(
+                text = "Claimable ORE: ${String.format("%.11f", claimableBalanceOre)}",
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(top = 16.dp)
+            )
 
-            if (!minimumBalanceReached) {
-                Text("Minimum claim amount is 1", style = MaterialTheme.typography.labelSmall)
+            val minimumBalanceReachedCoal = claimableBalanceCoal >= 1
+            val minimumBalanceReachedOre = claimableBalanceOre >= 0.005
+
+            if (!minimumBalanceReachedCoal) {
+                Text("Minimum claim amount is 1 COAL", style = MaterialTheme.typography.labelSmall)
+            }
+            if (!minimumBalanceReachedOre) {
+                Text("Minimum claim amount is 0.005 ORE", style = MaterialTheme.typography.labelSmall)
             }
             Button(
                 onClick = onClickClaim,
-                enabled = minimumBalanceReached,
+                enabled = minimumBalanceReachedCoal && minimumBalanceReachedOre,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Claim All")
@@ -356,13 +362,14 @@ fun SubmissionResultItem(result: SubmissionResult) {
         horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        val earnings = (result.minerEarned.toDouble() / 10.0.pow(11.0))
+        val earningsCoal = (result.minerEarnedCoal.toDouble() / 10.0.pow(11.0))
+        val earningsOre = (result.minerEarnedOre.toDouble() / 10.0.pow(11.0))
         val calendar = Calendar.getInstance(Locale.getDefault())
         //get current date from ts
         calendar.timeInMillis = result.createdAt
         //return formatted date
         val date = android.text.format.DateFormat.format("dd-MM-yy-HH:mm:ss", calendar).toString()
-        Text(text = "${"%.11f".format(earnings)}", style = MaterialTheme.typography.bodyLarge)
+        Text(text = "${"%.11f".format(earningsCoal)} C" + "\n" + "${"%.11f".format(earningsOre)} O", style = MaterialTheme.typography.bodyLarge)
         Text(text = "${result.minerDifficulty}", style = MaterialTheme.typography.bodyLarge)
         Text(text = "$date", style = MaterialTheme.typography.bodySmall)
     }

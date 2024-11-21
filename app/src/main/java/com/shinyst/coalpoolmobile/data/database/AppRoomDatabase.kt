@@ -34,7 +34,7 @@ abstract class AppRoomDatabase: RoomDatabase() {
                     instance = Room.databaseBuilder(
                         context.applicationContext,
                         AppRoomDatabase::class.java,
-                        "app_database"
+                        "app_database_2"
                     ).fallbackToDestructiveMigration()
                         .build()
 

@@ -13,8 +13,8 @@ android {
         applicationId = "com.shinyst.coalpoolmobile"
         minSdk = 26
         targetSdk = 34
-        versionCode = 100
-        versionName = "1.0.0"
+        versionCode = 200
+        versionName = "2.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -102,4 +102,6 @@ dependencies {
 
     kapt("androidx.room:room-compiler:$room_version")
     implementation("androidx.compose.runtime:runtime-livedata:1.3.1")
+
+    implementation("com.google.code.gson:gson:2.10.1") // Or latest version
 }
